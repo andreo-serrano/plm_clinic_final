@@ -3,11 +3,14 @@
 use App\Http\Controllers\AppointmentRequest;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\ScheduleNoteController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\user_login;
 use App\Models\Appointmentreq;
+use App\Models\ScheduleNote;
 use App\Models\StudentInfo;
 
 
@@ -143,6 +146,13 @@ Route::resource('announcements', AnnouncementController::class);
 //Appointment Request Storing
 Route::resource('appointmentreqs', AppointmentRequest::class);
 
-Route::post('/update-profile', [ProfileController::class, 'update']);
+//Schedule Notes Storing
+Route::get('/schedulenotes', [ScheduleNoteController::class, 'index'])->name('schedulenotes.index');
+Route::resource('schedulenotes', ScheduleNoteController::class);
+
+
+
+//Profile Update/Edit
+Route::post('/update-profile', [ProfileController::class, 'updateProfile'])->name('update.profile');
 
 require __DIR__.'/auth.php';

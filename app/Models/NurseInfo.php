@@ -5,16 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class StudentInfo extends Model
+class NurseInfo extends Model
 {
     use HasFactory;
 
-    // Specify the table associated with the model
-    protected $table = 'studentinfo';
+    protected $table = 'nurseinfo';
 
     // Specify the primary key of the table
-    protected $primaryKey = 'studentID';
+    protected $primaryKey = 'nurseID';
 
     // Fillable attributes for mass assignment
-    protected $fillable = ['peremail', 'mobnum', 'guardmobnum'];
+    protected $fillable = ['peremail', 'mobnum', 'emergencymobnum'];
 }

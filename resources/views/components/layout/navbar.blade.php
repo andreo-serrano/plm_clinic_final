@@ -9,7 +9,7 @@
 
         {{-- Middle --}}
         <div class="col-span-2 flex items-center relative">
-            <input type="text" class="font-semibold w-full rounded-full py-2 px-4 border-2 text-sm border-blue-800 text-blue-800 placeholder-blue-800" placeholder="SEARCH">
+            <input type="text" id="searchInput" class="font-semibold w-full rounded-full py-2 px-4 border-2 text-sm border-blue-800 text-blue-800 placeholder-blue-800" placeholder="SEARCH">
             <i class='bx bx-search absolute right-5'></i>
         </div>
 

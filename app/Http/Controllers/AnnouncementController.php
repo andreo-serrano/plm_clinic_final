@@ -16,7 +16,8 @@ class AnnouncementController extends Controller
             'announcement_date' => 'required|string|max:255',
             'announcement_details' => 'required|string',
             'announcement_provider' => 'nullable|string|max:500',
-            
+            'expiration_date' => 'required|string|max:255',
+            'expiration_time' => 'required|string|max:255',
         ]);
 
         // Create a new Announcement model instance
@@ -27,6 +28,8 @@ class AnnouncementController extends Controller
         $announcement->date = $validatedData['announcement_date'];
         $announcement->details = $validatedData['announcement_details'];
         $announcement->provider = $validatedData['announcement_provider'];
+        $announcement->ex_date = $validatedData['expiration_date'];
+        $announcement->ex_time = $validatedData['expiration_time'];
 
         // Save the announcement to the database
         $announcement->save();

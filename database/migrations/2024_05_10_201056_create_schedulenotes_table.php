@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('appointmentreqs', function (Blueprint $table) {
+        Schema::create('schedulenotes', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
             $table->string('univnum');
-            $table->text('reason');
-            $table->string('date');
-            $table->string('time');
-            $table->string('remarks')->nullable()->default('pending');
+            $table->string('todo_date');
+            $table->string('todo_title');
+            $table->string('todo_startTime');
+            $table->string('todo_endTime');
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('appointmentreqs');
+        Schema::dropIfExists('schedulenotes');
     }
 };

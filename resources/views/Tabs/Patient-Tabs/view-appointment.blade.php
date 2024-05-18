@@ -116,162 +116,126 @@
         {{-- For UP --}}
         <div class="px-4" :class="{ '': type === 'Upcoming', 'hidden': type !== 'Upcoming' }">
             <table class="table-auto w-full h-full">
+                <tbody>
+                    @php
+                    $appointments = DB::table('appointmentreqs')
+                        ->where('univnum', Auth::user()->univ_num)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    $hasAppointments = false; // Flag to check if there are any upcoming appointments
+                    @endphp
+                    
+                    @foreach($appointments as $appointment)
+                        @if($appointment->remarks === 'Approved' || $appointment->remarks === 'Reschedule' || $appointment->remarks === 'Follow Up' || $appointment->remarks === 'No show')
+                            @if (!$hasAppointments)
+                            <thead>
+                                <tr class="divide-x">
+                                    <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appointment <br> ID</th>
+                                    <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appointment <br> Date</th>
+                                    <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Clinic Service</th>
+                                    <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Request Type</th>
+                                    <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Complaint</th>
+                                    <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Time Block</th>
+                                    <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appointment <br> Status</th>
+                                </tr>
+                            </thead>
+                            @php
+                            $hasAppointments = true;
+                            @endphp
+                            @endif
+                            <tr class="text-center">
+                                <td class="border-2 border-yellow-700">{{ $appointment->id }}</td>
+                                <td class="border-2 border-yellow-700">{{ $appointment->date }}</td>
+                                <td class="border-2 border-yellow-700">{{ $appointment->type }}</td>
+                                <td class="border-2 border-yellow-700">{{ $appointment->request_type }}</td>
+                                <td class="border-2 border-yellow-700">{{ $appointment->reason }}</td>
+                                <td class="border-2 border-yellow-700">{{ $appointment->time }}</td>
+                                <td class="border-2 border-yellow-700">
+                                    <span class="inline-block h-3 w-3 rounded-full 
+                                        {{ $appointment->remarks === 'Approved' ? 'bg-green-400' : 
+                                        ($appointment->remarks === 'Not Approved' ? 'bg-red-400' : 
+                                            ($appointment->remarks === 'Reschedule' ? 'bg-blue-400' :
+                                                ($appointment->remarks === 'Follow Up' ? 'bg-pink-400' : 'bg-yellow-400'))) }}">
+                                    </span> 
+                                    {{ ucfirst($appointment->remarks) }}
+                                </td>
+                            </tr>
+                        @endif
+                    @endforeach
+                    
+                    {{-- If empty --}}
+                    @if(!$hasAppointments)
+                        <tr>
+                            <td colspan="6" class="text-center py-10 text-blue-950 font-bold">
+                                <h4 class="text-4xl">NO UPCOMING APPOINTMENTS</h4>
+                            </td>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+
+
+        {{-- For AP --}}
+        <div class="px-4" :class="{ '': type === 'Appointment', 'hidden': type !== 'Appointment' }">
+            {{-- Check if there are pending appointment requests --}}
+            @php
+            $appointments = DB::table('appointmentreqs')
+                ->where('univnum', Auth::user()->univ_num)
+                ->where('remarks', 'pending') // Filter only pending appointments
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $hasPendingRequests = $appointments->isNotEmpty(); // Check if there are pending requests
+            @endphp
+
+            {{-- Display the table only if there are pending requests --}}
+            @if($hasPendingRequests)
+            <table class="table-auto w-full h-full">
                 <thead>
                     <tr class="divide-x">
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appoinment <br> ID</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appoinment <br> Date</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Clinic Service</th>
+                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appointment <br>Request ID</th>
                         <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Complaint</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Time Block</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Remarks</th>
+                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Date of Complaint</th>
                         <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appointment <br> Status</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">06/24/2023</td>
-                        <td class="border-2 border-yellow-700">Medical</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Notes</td>
-                        <td class="border-2 border-yellow-700"><span class="inline-block h-3 w-3 rounded-full bg-red-600"></span> Rescheduled</td>
-                    </tr>
-
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">06/24/2023</td>
-                        <td class="border-2 border-yellow-700">Medical</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Notes</td>
-                        <td class="border-2 border-yellow-700"><span class="inline-block h-3 w-3 rounded-full bg-teal-400"></span> Confirmed</td>
-                    </tr>
-
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">06/24/2023</td>
-                        <td class="border-2 border-yellow-700">Medical</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Notes</td>
-                        <td class="border-2 border-yellow-700"><span class="inline-block h-3 w-3 rounded-full bg-yellow-400"></span> Checked In</td>
-                    </tr>
-
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">06/24/2023</td>
-                        <td class="border-2 border-yellow-700">Medical</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Notes</td>
-                        <td class="border-2 border-yellow-700"><span class="inline-block h-3 w-3 rounded-full bg-blue-400"></span> In Progress</td>
-                    </tr>
-
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">06/24/2023</td>
-                        <td class="border-2 border-yellow-700">Medical</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Notes</td>
-                        <td class="border-2 border-yellow-700"><span class="inline-block h-3 w-3 rounded-full bg-green-600"></span> Completed</td>
-                    </tr>
-
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">06/24/2023</td>
-                        <td class="border-2 border-yellow-700">Medical</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Notes</td>
-                        <td class="border-2 border-yellow-700"><span class="inline-block h-3 w-3 rounded-full bg-red-800"></span> No-show</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="w-full text-center py-28 text-blue-950 font-bold">
-                {{-- If empty 
-                <h4 class="text-4xl">NO UPCOMING <br> APPOINTMENT</h4>
-                --}}
-            </div>
-        </div>
-
-        {{-- For AP --}}
-        <div class="px-4" :class="{ '': type === 'Appointment', 'hidden': type !== 'Appointment' }">
-            <table class="table-auto w-full h-full">
-                <thead>
-                    <tr class="divide-x">
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appoinment <br>Request ID</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Complaint</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Date of Complaint</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Remarks</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @if (DB::table('appointmentreqs')->where('univnum', Auth::user()->univ_num)->exists())
-            
-                    @php
-                        $appointments = DB::table('appointmentreqs')->where('univnum', Auth::user()->univ_num)->orderBy('created_at', 'desc')->get();
-                    @endphp
-
-                            @foreach($appointments as $appointment)
-                            <tr class="text-center">
-                                <td class="border-2 border-yellow-700">000000{{ $appointment->id }}</td>
-                                <td class="border-2 border-yellow-700">{{ $appointment->type }}</td>
-                                <td class="border-2 border-yellow-700">{{ $appointment->date }}</td>
-                                {{-- For Resched --}}
-                                <td class="border-2 border-yellow-700" 
-                                    @if($appointment->remarks === 'approved') 
-                                        data-modal-target="delete-modal" 
-                                        data-modal-toggle="delete-modal" 
-                                    @elseif($appointment->remarks === 'not approved') 
-                                        data-modal-target="delete-modal" 
-                                        data-modal-toggle="delete-modal" 
-                                   {{-- @elseif($appointment->remarks === 'pending') 
-                                        data-modal-target="resched-confirmation-modal" 
-                                        data-modal-toggle="resched-confirmation-modal"--}}
-                                    @endif>
-                                    <span class="inline-block h-3 w-3 rounded-full {{ $appointment->remarks === 'approved' ? 'bg-green-400' : ($appointment->remarks === 'not approved' ? 'bg-red-400' : 'bg-yellow-400') }}"></span> 
-                                    {{ ucfirst($appointment->remarks) }}
-                                </td>                         
-
-                            </tr>
-                            @endforeach
-                    @endif
-
-                    {{--
+                    {{-- Display appointment requests --}}
+                    @foreach($appointments as $appointment)
                     <tr class="text-center">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Medical</td>
-                        <td class="border-2 border-yellow-700">06/24/2023</td>
-
-                        {{--- For Delete-}}
-                        <td class="border-2 border-yellow-700" data-modal-target="delete-modal" data-modal-toggle="delete-modal"><span class="inline-block h-3 w-3 rounded-full bg-green-600"></span> Approved</td>
-                    </tr> --}}
-                    
+                        <td class="border-2 border-yellow-700">{{ $appointment->id }}</td>
+                        <td class="border-2 border-yellow-700">{{ $appointment->type }}</td>
+                        <td class="border-2 border-yellow-700">{{ $appointment->date }}</td>
+                        {{-- For Resched --}}
+                        <td class="border-2 border-yellow-700" 
+                            @if($appointment->remarks === 'approved') 
+                                data-modal-target="delete-modal" 
+                                data-modal-toggle="delete-modal" 
+                            @elseif($appointment->remarks === 'not approved') 
+                                data-modal-target="delete-modal" 
+                                data-modal-toggle="delete-modal" 
+                        {{-- @elseif($appointment->remarks === 'pending') 
+                                data-modal-target="resched-confirmation-modal" 
+                                data-modal-toggle="resched-confirmation-modal"--}}
+                            @endif>
+                            <span class="inline-block h-3 w-3 rounded-full {{ $appointment->remarks === 'approved' ? 'bg-green-400' : ($appointment->remarks === 'not approved' ? 'bg-red-400' : 'bg-yellow-400') }}"></span> 
+                            {{ ucfirst($appointment->remarks) }}
+                        </td>                         
+                    </tr>
+                    @endforeach
                 </tbody>
             </table>
-
-
-            {{-- If empty --}}
-
-            @php
-                $appointments = DB::table('appointmentreqs')
-                                ->where('univnum', Auth::user()->univ_num)
-                                ->orderBy('created_at', 'desc')
-                                ->get(); // Execute the query and get the results
-            @endphp
-
-            @if($appointments->isEmpty())            
-                <div class="w-full text-center py-28 text-blue-950 font-bold">
-                    <h4 class="text-4xl">NO APPOINTMENT <br> REQUEST</h4>
-                </div>
             @endif
-           
+
+            {{-- If empty or no pending requests --}}
+            @if($appointments->isEmpty() || !$hasPendingRequests)            
+            <div class="w-full text-center py-28 text-blue-950 font-bold">
+                <h4 class="text-4xl">NO PENDING APPOINTMENT REQUEST</h4>
+            </div>
+            @endif
         </div>
+        
     </div>
 </div>
 

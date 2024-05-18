@@ -2,105 +2,90 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 use App\Models\StudentInfo;
+use App\Models\EmployeeInfo;
+use App\Models\FacultyInfo;
+use App\Models\NurseInfo;
 
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): View
-    {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
-    }
-
-    /**
-     * Update the user's profile information.
-     */
-    /*public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
-    }*/
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
-    }
-
-    public function update(Request $request)
-    {
-        $user = auth()->user(); // Get the authenticated user
-        $studentInfo = $studentInfo = StudentInfo::where('studentID', $user->univ_num)->first();
-
-        if ($studentInfo) {
-            $studentInfo->peremail = $request->peremail;
-            $studentInfo->mobnum = $request->mobnum;
-            $studentInfo->guardmobnum = $request->gnum;
-
-            $studentInfo->save();
-
-            return response()->json(['message' => 'Profile updated successfully'], 200);
-        } else {
-            return response()->json(['message' => 'Student information not found'], 404);
-        }
-    }
-
-    /*public function update(Request $request)
+    public function updateProfile(Request $request)
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'peremail' => 'required|string|max:255',
-            'mobnum'   => 'required|int|max:11',
-            'gnum'   => 'required|int|max:11'
-
-            // Add validation rules for other fields here
+            'peremail' => 'required|email',
+            'mobnum' => 'required',
+            'gnum' => 'required',
         ]);
 
-        // Retrieve the authenticated user's student info
-        $studentInfo = StudentInfo::where('studentID', auth()->user()->univ_num)->first();
-
-        if ($studentInfo) {
-            // Update the student info with the validated data
-            $studentInfo->update($validatedData);
-
-            return response()->json(['message' => 'Profile updated successfully'], 200);
-        } else {
-            return response()->json(['message' => 'User not found'], 404);
+        // Update student profile
+        if (StudentInfo::where('studentID', Auth::user()->univ_num)->first()) {
+            $this->updateProfileByType('student', $request);
         }
-    }*/
 
-    
+        // Update employee profile if applicable
+        if (EmployeeInfo::where('employeeID', Auth::user()->univ_num)->first()) {
+            $this->updateProfileByType('employee', $request);
+        }
+
+        // Update faculty profile if applicable
+        if (FacultyInfo::where('facultyID', Auth::user()->univ_num)->first()) {
+            $this->updateProfileByType('faculty', $request);
+        }
+
+        // Update faculty profile if applicable
+        if (NurseInfo::where('nurseID', Auth::user()->univ_num)->first()) {
+            $this->updateProfileByType('nurse', $request);
+        }
+        
+        // Redirect back or wherever you need
+        return redirect()->back()->with('success', 'Profile Updated Successfully!');
+    }
+
+    private function updateProfileByType($type, $request)
+    {
+        switch ($type) {
+            case 'student':
+                $userInfo = StudentInfo::where('studentID', Auth::user()->univ_num)->first();
+                if ($userInfo) {
+                    $userInfo->peremail = $request->input('peremail');
+                    $userInfo->mobnum = $request->input('mobnum');
+                    $userInfo->guardmobnum = $request->input('gnum');
+                    $userInfo->save();
+                }
+                break;
+            case 'employee':
+                $userInfo = EmployeeInfo::where('employeeID', Auth::user()->univ_num)->first();
+                if ($userInfo) {
+                    $userInfo->peremail = $request->input('peremail');
+                    $userInfo->mobnum = $request->input('mobnum');
+                    $userInfo->emergencymobnum = $request->input('gnum');
+                    $userInfo->save();
+                }
+                break;
+            case 'faculty':
+                $userInfo = FacultyInfo::where('facultyID', Auth::user()->univ_num)->first();
+                if ($userInfo) {
+                    $userInfo->peremail = $request->input('peremail');
+                    $userInfo->mobnum = $request->input('mobnum');
+                    $userInfo->emergencymobnum = $request->input('gnum');
+                    $userInfo->save();
+                }
+                break;
+            case 'nurse':
+                $userInfo = NurseInfo::where('nurseID', Auth::user()->univ_num)->first();
+                if ($userInfo) {
+                    $userInfo->peremail = $request->input('peremail');
+                    $userInfo->mobnum = $request->input('mobnum');
+                    $userInfo->ermobnum = $request->input('gnum');
+                    $userInfo->save();
+                }
+                break;
+        }
+    }
 }

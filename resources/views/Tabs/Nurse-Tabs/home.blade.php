@@ -65,6 +65,16 @@
                             <textarea cols="30" rows="7" name="announcement_provider" class="border-1 border-blue-800"></textarea>
                         </div>
 
+                        <div>
+                            <label class="text-blue-800 font-semibold">Expiration Date:</label>
+                            <input type="date" name="expiration_date" class="font-semibold w-full py-1 px-4 border-1 text-sm border-blue-800 text-blue-800 placeholder-blue-800" placeholder="">
+                        </div>
+
+                        <div>
+                            <label class="text-blue-800 font-semibold">Expiration Time:</label>
+                            <input type="time" name="expiration_time" class="font-semibold w-full py-1 px-4 border-1 text-sm border-blue-800 text-blue-800 placeholder-blue-800" placeholder="">
+                        </div>
+
                         <div class="flex justify-center my-3">
                             <input type="submit" value="Submit Announcement" class="bg-blue-800 text-white font-semibold px-10 py-1 rounded-lg shadow" onclick="return validateForm()">
                         </div>
@@ -79,9 +89,11 @@
                             var title = document.forms["announcementForm"]["announcement_title"].value;
                             var date = document.forms["announcementForm"]["announcement_date"].value;
                             var details = document.forms["announcementForm"]["announcement_details"].value;
+                            var exdate = document.forms["announcementForm"]["expiration_date"].value;
+                            var extime = document.forms["announcementForm"]["expiration_time"].value;
 
                             // Check if required fields are filled
-                            if (title == "" || date == "" || details == "") {
+                            if (title == "" || date == "" || details == "" || exdate == "" || extime == "") {
                                 // Display error message
                                 alert("Please fill out all required fields.");
                                 return false; // Prevent form submission
@@ -133,53 +145,65 @@
                 </div>
 
                 <div class="overflow-auto space-y-2 h-72">
+
+                {{-- For Pending Requests Count --}}
+                @php
+                $pendingreqs = DB::table('appointmentreqs')
+                    ->where('remarks', 'pending') 
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+                $pendingreqsCount = $pendingreqs->count();
+                @endphp
+
+                {{-- For Approved Requests Count--}}
+                @php
+                $approvedreqs = DB::table('appointmentreqs')
+                    ->where('remarks', 'Approved') 
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+                $appprovedreqsCount = $approvedreqs->count();
+                @endphp
+
                     <div class="w-full p-2 text-white flex flex-row items-center bg-blue-800 rounded-lg shadow-md">
                         <img width="34" height="34" src="https://img.icons8.com/sf-black-filled/64/FFFFFF/document.png" class="object-fit" alt="document"/>
 
-                        <span>dasdasdasdasd</span>
+                        <span>Number of requests that needs approval: {{ $pendingreqsCount }}</span>
                     </div>
 
                     <div class="w-full p-2 text-yellow-700 border-2 border-yellow-700 flex flex-row items-center rounded-lg shadow-md">
                         <img width="34" height="34" src="https://img.icons8.com/sf-black-filled/64/a16207/document.png" class="object-fit" alt="document"/>
 
-                        <span>dasdasdasdasd</span>
+                        <span>Number of approved patients to cater: {{  $appprovedreqsCount }}</span>
                     </div>
 
-                    <div class="w-full p-2 text-white flex flex-row items-center bg-blue-800 rounded-lg shadow-md">
-                        <img width="34" height="34" src="https://img.icons8.com/sf-black-filled/64/FFFFFF/document.png" class="object-fit" alt="document"/>
+                    @php
+                    $scheduleNotes = DB::table('schedulenotes')
+                                    ->where('univnum', Auth::user()->univ_num)
+                                    ->orderBy('created_at', 'desc')
+                                    ->get();
+                    @endphp
 
-                        <span>dasdasdasdasd</span>
-                    </div>
+                    @foreach ($scheduleNotes as $index => $note) 
+                        @php
+                            $todoDate = \Carbon\Carbon::parse($note->todo_date);
+                            $startTime = \Carbon\Carbon::parse($note->todo_startTime);
+                            $endTime = \Carbon\Carbon::parse($note->todo_endTime); 
+                        @endphp
 
-                    <div class="w-full p-2 text-yellow-700 border-2 border-yellow-700 flex flex-row items-center rounded-lg shadow-md">
-                        <img width="34" height="34" src="https://img.icons8.com/sf-black-filled/64/a16207/document.png" class="object-fit" alt="document"/>
-
-                        <span>dasdasdasdasd</span>
-                    </div>
-
-                    <div class="w-full p-2 text-white flex flex-row items-center bg-blue-800 rounded-lg shadow-md">
-                        <img width="34" height="34" src="https://img.icons8.com/sf-black-filled/64/FFFFFF/document.png" class="object-fit" alt="document"/>
-
-                        <span>dasdasdasdasd</span>
-                    </div>
-
-                    <div class="w-full p-2 text-yellow-700 border-2 border-yellow-700 flex flex-row items-center rounded-lg shadow-md">
-                        <img width="34" height="34" src="https://img.icons8.com/sf-black-filled/64/a16207/document.png" class="object-fit" alt="document"/>
-
-                        <span>dasdasdasdasd</span>
-                    </div>
-
-                    <div class="w-full p-2 text-white flex flex-row items-center bg-blue-800 rounded-lg shadow-md">
-                        <img width="34" height="34" src="https://img.icons8.com/sf-black-filled/64/FFFFFF/document.png" class="object-fit" alt="document"/>
-
-                        <span>dasdasdasdasd</span>
-                    </div>
-
-                    <div class="w-full p-2 text-yellow-700 border-2 border-yellow-700 flex flex-row items-center rounded-lg shadow-md">
-                        <img width="34" height="34" src="https://img.icons8.com/sf-black-filled/64/a16207/document.png" class="object-fit" alt="document"/>
-
-                        <span>dasdasdasdasd</span>
-                    </div>
+                        @if ($todoDate->isToday() || $todoDate->isFuture())  
+                            <div class="w-full p-2 flex flex-row items-center rounded-lg shadow-md 
+                                        {{ $index % 2 == 0 ? 'bg-blue-800 text-white' : 'border-2 border-yellow-700 text-yellow-700' }}"
+                                data-start-time="{{ $startTime->format('H:i') }}" data-end-time="{{ $endTime->format('H:i') }}"> 
+                                <img width="34" height="34" 
+                                    src="{{ $index % 2 == 0 ? 'https://img.icons8.com/sf-black-filled/64/FFFFFF/document.png' : 'https://img.icons8.com/sf-black-filled/64/a16207/document.png' }}" 
+                                    class="object-fit" alt="document"/>
+                                <span>{{ $note->todo_title }} on {{ $todoDate->format('l, F j, Y') }} 
+                                    from {{ $startTime->format('h:i A') }} to {{ $endTime->format('h:i A') }}</span> 
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
             </div>
         </div>

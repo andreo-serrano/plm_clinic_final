@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Appointmentreq;
 
+
 class AppointmentRequest extends Controller
 {
     //
@@ -14,7 +15,8 @@ class AppointmentRequest extends Controller
         $validatedData = $request->validate([
             'appreq_type' => 'required|string|max:255',
             'appreq_univnum' => 'required|string|max:255',
-            'appreq_reason' => 'required|string',
+            'reqtype' => 'sometimes|required|string|max:255', 
+            'appreq_reason' => 'nullable|string',
             'appreq_date' => 'required|string|max:255',
             'appreq_time' => 'required|string|max:255',
             
@@ -26,7 +28,13 @@ class AppointmentRequest extends Controller
         // Set the Appointment Request to its designated fields from the request
         $appointmentrequest->type = $validatedData['appreq_type'];
         $appointmentrequest->univnum = $validatedData['appreq_univnum'];
-        $appointmentrequest->reason = $validatedData['appreq_reason'];
+       // Set reqtype to 'none' when Dental is selected, otherwise use the validated data
+        if ($request->input('appreq_type') === 'Medical') {
+            $appointmentrequest->request_type = $validatedData['reqtype'];
+        } else {
+            $appointmentrequest->request_type = 'N/A'; // Explicitly set to "none"
+        }
+        $appointmentrequest->reason = $validatedData['appreq_reason'] ?? 'N/A'; 
         $appointmentrequest->date = $validatedData['appreq_date'];
         $appointmentrequest->time = $validatedData['appreq_time'];
 
