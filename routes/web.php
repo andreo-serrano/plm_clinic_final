@@ -4,6 +4,10 @@ use App\Http\Controllers\AppointmentRequest;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ScheduleNoteController;
+use App\Http\Controllers\Approval;
+use App\Http\Controllers\Approval1;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -150,9 +154,21 @@ Route::resource('appointmentreqs', AppointmentRequest::class);
 Route::get('/schedulenotes', [ScheduleNoteController::class, 'index'])->name('schedulenotes.index');
 Route::resource('schedulenotes', ScheduleNoteController::class);
 
-
-
 //Profile Update/Edit
 Route::post('/update-profile', [ProfileController::class, 'updateProfile'])->name('update.profile');
+
+//Approved appoinments storing
+Route::post('/approval', [Approval::class, 'store'])->name('approval.store');
+Route::post('/approval1/store', [Approval1::class, 'store'])->name('approval1.store');
+
+
+//Report route
+Route::get('/reports/weekly-patients', [ReportController::class, 'getWeeklyPatients'])->name('reports.weekly-patients');
+Route::get('/reports/monthly-patients', [ReportController::class, 'getMonthlyPatients'])->name('reports.monthly-patients');
+Route::get('/reports/patients-for-period', [ReportController::class, 'getPatientsForPeriod'])->name('reports.patients-for-period');
+
+//Search route
+Route::get('/search', [AppointmentController::class, 'search'])->name('search');
+
 
 require __DIR__.'/auth.php';

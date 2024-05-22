@@ -10,6 +10,7 @@ use App\Models\StudentInfo;
 use App\Models\EmployeeInfo;
 use App\Models\FacultyInfo;
 use App\Models\NurseInfo;
+use App\Models\DoctorInfo;
 
 
 class ProfileController extends Controller
@@ -38,9 +39,14 @@ class ProfileController extends Controller
             $this->updateProfileByType('faculty', $request);
         }
 
-        // Update faculty profile if applicable
+        // Update nurse profile if applicable
         if (NurseInfo::where('nurseID', Auth::user()->univ_num)->first()) {
             $this->updateProfileByType('nurse', $request);
+        }
+
+        // Update nurse profile if applicable
+        if (DoctorInfo::where('doctorID', Auth::user()->univ_num)->first()) {
+            $this->updateProfileByType('doctor', $request);
         }
         
         // Redirect back or wherever you need
@@ -79,6 +85,15 @@ class ProfileController extends Controller
                 break;
             case 'nurse':
                 $userInfo = NurseInfo::where('nurseID', Auth::user()->univ_num)->first();
+                if ($userInfo) {
+                    $userInfo->peremail = $request->input('peremail');
+                    $userInfo->mobnum = $request->input('mobnum');
+                    $userInfo->ermobnum = $request->input('gnum');
+                    $userInfo->save();
+                }
+                break;
+            case 'doctor':
+                $userInfo = DoctorInfo::where('doctorID', Auth::user()->univ_num)->first();
                 if ($userInfo) {
                     $userInfo->peremail = $request->input('peremail');
                     $userInfo->mobnum = $request->input('mobnum');

@@ -10,9 +10,9 @@
             <div class="w-full border-t-4 border-blue-900 mt-2"></div>
         </div>
 
-        {{-- For UP --}}
-        <div class="px-4" :class="{ '': type === 'Medical', 'hidden': type !== 'Medical' }">
-            <table class="table-auto w-full h-full">
+        {{-- For Medical --}}
+        <div class="px-4" :class="{ '': type === 'Medical', 'hidden': type !== 'Medical' }" x-data="appointmentActions()">
+            <table id="medicalAppointmentTable" class="table-auto w-full h-full">
             <tbody>
                     @php
                     $appointments = DB::table('appointmentreqs')
@@ -58,9 +58,9 @@
 
 
                     @foreach($appointments as $appointment)
-                        @if($appointment->remarks === 'pending')
+                        @if($appointment->remarks === 'pending' || $appointment->remarks === 'Pending')
                             @if (!$hasAppointments)
-                            <thead>
+                            <thead> 
                                 <tr class="divide-x">
                                     <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Appointment <br> ID</th>
                                     <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Patient <br> Type</th>
@@ -75,33 +75,47 @@
                             $hasAppointments = true;
                             @endphp
                             @endif
-                            <tr class="text-center">
-                                <td class="border-2 border-yellow-700">{{ $appointment->id }}</td>
-                                <td class="border-2 border-yellow-700">{{ $userTypeLookup[$appointment->univnum] ?? 'Unknown' }}</td>
-                                <td class="border-2 border-yellow-700">{{ $appointment->date }}</td>
-                                <td class="border-2 border-yellow-700">{{ $appointment->time }}</td>
-                                
+                                <tr class="text-center text-blue-800">
+                                <form id="approvalform-{{ $appointment->id }}" method="POST" action="{{ route('approval.store') }}">
+                                @csrf
+
+                                <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">
+                                <input type="hidden" name="usertype" value="{{ $userTypeLookup[$appointment->univnum] ?? 'Unknown' }}">
+                                <input type="hidden" name="date" value="{{ $appointment->date }}">
+                                <input type="hidden" name="time" value="{{ $appointment->time }}">
+
                                 @if($appointment->request_type === 'Other')
-                                <td class="border-2 border-yellow-700">{{ $appointment->reason }}</td>
+                                    <input type="hidden" name="reqtype" value="{{ $appointment->reason }}">
+                                @elseif($appointment->reason === 'N/A')
+                                    <input type="hidden" name="reqtype" value="{{ $appointment->request_type }}">
                                 @endif
+                                        <td id="id" name="id" class="border-2 border-yellow-700">{{ $appointment->id }}</td>
+                                        <td id="usertype" name="usertype" class="border-2 border-yellow-700">{{ $userTypeLookup[$appointment->univnum] ?? 'Unknown' }}</td>
+                                        <td id="date" name="date" class="border-2 border-yellow-700">{{ $appointment->date }}</td>
+                                        <td id="time" name="time" class="border-2 border-yellow-700">{{ $appointment->time }}</td>
+                                        
+                                        @if($appointment->request_type === 'Other')
+                                        <td id="reqtype" name="reqtype" class="border-2 border-yellow-700">{{ $appointment->reason }}</td>
+                                        @endif
 
-                                @if($appointment->reason === 'N/A')
-                                <td class="border-2 border-yellow-700">{{ $appointment->request_type }}</td>
-                                @endif
+                                        @if($appointment->reason === 'N/A')
+                                        <td id="reqtype" name="reqtype" class="border-2 border-yellow-700">{{ $appointment->request_type }}</td>
+                                        @endif
 
 
-                                <td class="border-2 border-yellow-700">
-                                    <div class="flex items-center relative text-center">
-                                        <input type="text" placeholder="Add Remarks" class="border-none placeholder-blue-800 w-full text-blue-800 focus:border-none border-transparent px-5">
-                                        <i class='bx bx-pencil absolute right-3 text-blue-800'></i>
-                                    </div>
-                                </td>
+                                        <td class="border-2 border-yellow-700">
+                                            <div class="flex items-center relative text-center">
+                                                <input x-model="remarks"  name= "remarks" type="text" placeholder="Add Remarks" class="border-none placeholder-blue-800 w-full text-blue-800 focus:border-none border-transparent px-5">
+                                                <i class='bx bx-pencil absolute right-3 text-blue-800'></i>
+                                            </div>
+                                        </td>
 
-                                <td class="border-2 border-yellow-700 flex flex-row gap-2 justify-center items-center h-full">
-                                    <button class="px-3 border-2 border-yellow-700 font-semibold text-yellow-700 rounded-lg hover:bg-yellow-700 hover:text-white">Accept</button>
-                                    <button class="px-3 border-2 border-yellow-700 font-semibold text-yellow-700 rounded-lg hover:bg-yellow-700 hover:text-white">Cancel</button>
-                                </td>
-                            </tr>
+                                        <td class="border-2 border-yellow-700 flex flex-row gap-2 justify-center items-center h-full">
+                                            <button type="submit" name="action" value="accept" class="px-3 border-2 border-yellow-700 font-semibold text-yellow-700 rounded-lg hover:bg-yellow-700 hover:text-white">Accept</button>
+                                            <button type="submit" name="action" value="cancel" class="px-3 border-2 border-yellow-700 font-semibold text-yellow-700 rounded-lg hover:bg-yellow-700 hover:text-white">Reschedule</button>   
+                                        </td>
+                                </form> 
+                                </tr>   
                         @endif
                     @endforeach
                     
@@ -110,7 +124,7 @@
                         <tr>
                             <td colspan="8">
                                 <div class="w-full text-center py-28 text-blue-950 font-bold">
-                                    <h4 class="text-4xl">NO MEDICAL APPOINTMENTS</h4>
+                                    <h4 class="text-4xl">NO MEDICAL APPOINTMENT REQUEST</h4>
                                 </div>
                             </td>
                         </tr>
@@ -121,7 +135,7 @@
         
 
         {{-- For Dental --}}
-        <div class="px-4" :class="{ '': type === 'Dental', 'hidden': type !== 'Dental' }">
+        <div class="px-4" :class="{ '': type === 'Dental', 'hidden': type !== 'Dental' }" x-data="appointmentActions()">
             <table class="table-auto w-full h-full">
             <tbody>
                     @php
@@ -168,7 +182,7 @@
 
 
                     @foreach($appointments as $appointment)
-                        @if($appointment->remarks === 'pending')
+                        @if($appointment->remarks === 'pending' || $appointment->remarks === 'Pending')
                             @if (!$hasAppointments)
                             <thead>
                                 <tr class="divide-x">
@@ -185,23 +199,34 @@
                             $hasAppointments = true;
                             @endphp
                             @endif
-                            <tr class="text-center">
-                                <td class="border-2 border-yellow-700">{{ $appointment->id }}</td>
-                                <td class="border-2 border-yellow-700">{{ $userTypeLookup[$appointment->univnum] ?? 'Unknown' }}</td>
-                                <td class="border-2 border-yellow-700">{{ $appointment->date }}</td>
-                                <td class="border-2 border-yellow-700">{{ $appointment->time }}</td>
-                                <td class="border-2 border-yellow-700">{{ $appointment->reason }}</td>
-                                <td class="border-2 border-yellow-700">
-                                    <div class="flex items-center relative text-center">
-                                        <input type="text" placeholder="Add Remarks" class="border-none placeholder-blue-800 w-full text-blue-800 focus:border-none border-transparent px-5">
-                                        <i class='bx bx-pencil absolute right-3 text-blue-800'></i>
-                                    </div>
-                                </td>
+                            <tr class="text-center text-blue-800">
+                            <form id="approvalform-{{ $appointment->id }}" method="POST" action="{{ route('approval1.store') }}">
+                                @csrf
 
-                                <td class="border-2 border-yellow-700 flex flex-row gap-2 justify-center items-center h-full">
-                                    <button class="px-3 border-2 border-yellow-700 font-semibold text-yellow-700 rounded-lg hover:bg-yellow-700 hover:text-white">Accept</button>
-                                    <button class="px-3 border-2 border-yellow-700 font-semibold text-yellow-700 rounded-lg hover:bg-yellow-700 hover:text-white">Cancel</button>
-                                </td>
+                                <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">
+                                <input type="hidden" name="usertype" value="{{ $userTypeLookup[$appointment->univnum] ?? 'Unknown' }}">
+                                <input type="hidden" name="date" value="{{ $appointment->date }}">
+                                <input type="hidden" name="time" value="{{ $appointment->time }}">
+                                <input type="hidden" name="reqtype" value="{{ $appointment->reason }}">
+                               
+                            
+                                        <td id="id" name="id" class="border-2 border-yellow-700">{{ $appointment->id }}</td>
+                                        <td id="usertype" name="usertype" class="border-2 border-yellow-700">{{ $userTypeLookup[$appointment->univnum] ?? 'Unknown' }}</td>
+                                        <td id="date" name="date" class="border-2 border-yellow-700">{{ $appointment->date }}</td>
+                                        <td id="time" name="time" class="border-2 border-yellow-700">{{ $appointment->time }}</td>
+                                        <td id="reqtype" name="reqtype" class="border-2 border-yellow-700">{{ $appointment->reason }}</td>
+                                        <td class="border-2 border-yellow-700">
+                                            <div class="flex items-center relative text-center">
+                                                <input x-model="remarks" name= "remarks" type="text" placeholder="Add Remarks" class="border-none placeholder-blue-800 w-full text-blue-800 focus:border-none border-transparent px-5">
+                                                <i class='bx bx-pencil absolute right-3 text-blue-800'></i>
+                                            </div>
+                                        </td>
+
+                                        <td class="border-2 border-yellow-700 flex flex-row gap-2 justify-center items-center h-full">
+                                            <button type="submit" name="action" value="accept" class="px-3 border-2 border-yellow-700 font-semibold text-yellow-700 rounded-lg hover:bg-yellow-700 hover:text-white">Accept</button>
+                                            <button type="submit" name="action" value="cancel" class="px-3 border-2 border-yellow-700 font-semibold text-yellow-700 rounded-lg hover:bg-yellow-700 hover:text-white">Reschedule</button>
+                                        </td>
+                                </form> 
                             </tr>
                         @endif
                     @endforeach
@@ -211,7 +236,7 @@
                         <tr>
                             <td colspan="8">
                                 <div class="w-full text-center py-28 text-blue-950 font-bold">
-                                    <h4 class="text-4xl">NO MEDICAL APPOINTMENTS</h4>
+                                    <h4 class="text-4xl">NO DENTAL APPOINTMENT REQUEST</h4>
                                 </div>
                             </td>
                         </tr>
@@ -221,3 +246,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    function appointmentActions() {
+        return {
+            cancelAppointment(el) {
+                const input = el.closest('tr').querySelector('input[name="remarks"]');
+                if (input) {
+                    input.value = '';
+                }
+            }
+        };
+    }
+</script>

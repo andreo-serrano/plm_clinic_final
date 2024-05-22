@@ -10,234 +10,194 @@
             <div class="w-full border-t-4 border-blue-900 mt-2"></div>
         </div>
 
-        {{-- For UP --}}
+        {{-- For Medical --}}
         <div class="px-4" :class="{ '': type === 'Medical', 'hidden': type !== 'Medical' }">
             <table class="table-auto w-full h-full">
-                <thead>
-                    <tr class="divide-x">
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appoinment <br> ID</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Patient Type</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appoinment <br> Date</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Main Complaint</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Time Block</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Remarks</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-
                 <tbody>
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-red-600"></span> Cancelled
-                        </td>
+                    @php
+                    $appointments = DB::table('appointmentreqs')
+                        ->where('type', 'Medical')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    $hasAppointments = false; // Flag to check if there are any upcoming appointments
+                    @endphp
 
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
+                    @php
+                    $approvedmeds = DB::table('appmedicalreqs')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    @endphp
 
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-green-600"></span> Confirmed
-                        </td>
+                    @foreach($approvedmeds as $approvedmed)
+                        @if($approvedmed->status === 'Approved' || $approvedmed->status === 'Not Approved')
+                            @if (!$hasAppointments)
+                                <thead>
+                                    <tr class="divide-x">
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Appointment <br> ID</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Patient Type</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Appointment <br> Date</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Time Block</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Patient Concern</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Remarks</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Status</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
 
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
+                            @php
+                            $hasAppointments = true;
+                            @endphp
+                            @endif
 
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-blue-600"></span> Done
-                        </td>
+                            <tr class="text-center text-blue-800">
+                                <form method="POST" action="{{ route('approval.store') }}">
+                                @csrf
+                                    <input type="hidden" name="appointment_id" value="{{ $approvedmed->appid }}">
+                                    <input type="hidden" name="usertype" value="{{ $approvedmed->type }}">
+                                    <input type="hidden" name="date" value="{{ $approvedmed->date }}">
+                                    <input type="hidden" name="time" value="{{ $approvedmed->time }}">
+                                    <input type="hidden" name="reqtype" value="{{ $approvedmed->patient_concern }}">
+                                    <input type="hidden" name="remarks" value="{{ $approvedmed->remarks }}">
 
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->appid }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->type }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->date }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->time }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->patient_concern }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->remarks }}</td>
+                                    <td class="border-2 border-yellow-700">
+                                        <span class="inline-block h-3 w-3 rounded-full
+                                            @if($approvedmed->status === 'Approved') bg-green-400
+                                            @elseif($approvedmed->status === 'Not Approved') bg-red-400
+                                            @elseif($approvedmed->status === 'Reschedule') bg-blue-400
+                                            @elseif($approvedmed->status === 'Follow Up') bg-pink-400
+                                            @else bg-yellow-400
+                                            @endif">
+                                        </span>
+                                        {{ ucfirst($approvedmed->status) }}
+                                    </td>
 
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-yellow-300"></span> On-Going
-                        </td>
+                                    <td>
+                                        <button type="submit" name="action" value="resolved" class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
+                                            <i class='bx bx-check-circle'></i>
+                                        </button>
+                                    </td>
+                                </form>
+                            </tr>
 
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
+                        @endif
+                    @endforeach
+                    
+                    {{-- If empty --}}
+                    @if(!$hasAppointments)
+                        <tr>
+                            <td colspan="8">
+                                <div class="w-full text-center py-28 text-blue-950 font-bold">
+                                    <h4 class="text-4xl">NO MEDICAL APPOINTMENTS</h4>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
-
-            <div class="w-full text-center py-28 text-blue-950 font-bold">
-                {{-- If empty --}}
-                <h4 class="text-4xl">NO MEDICAL <br> APPOINTMENT</h4>
-            </div>
         </div>
+
+
+
+
+
 
         {{-- For Dental --}}
         <div class="px-4" :class="{ '': type === 'Dental', 'hidden': type !== 'Dental' }">
             <table class="table-auto w-full h-full">
-                <thead>
-                    <tr class="divide-x">
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appoinment <br> ID</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Patient Type</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Appoinment <br> Date</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Main Complaint</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Time Block</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Remarks</th>
-                        <th class="text-white bg-blue-900 text-sm font-semibold leading-none py-1">Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
+            <tbody>
+                    @php
+                    $appointments = DB::table('appointmentreqs')
+                        ->where('type', 'Medical')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    $hasAppointments = false; // Flag to check if there are any upcoming appointments
+                    @endphp
 
-                <tbody>
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-red-600"></span> Cancelled
-                        </td>
+                    @php
+                    $approvedmeds = DB::table('appdentalreqs')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    @endphp
 
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
+                    @foreach($approvedmeds as $approvedmed)
+                        @if($approvedmed->status === 'Approved' || $approvedmed->status === 'Not Approved')
+                            @if (!$hasAppointments)
+                                <thead>
+                                    <tr class="divide-x">
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Appointment <br> ID</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Patient Type</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Appointment <br> Date</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Time Block</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Patient Concern</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Remarks</th>
+                                        <th class="text-white bg-blue-900 text-sm font-semibold py-2 px-4">Status</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
 
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-green-600"></span> Confirmed
-                        </td>
+                            @php
+                            $hasAppointments = true;
+                            @endphp
+                            @endif
 
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
+                            <tr class="text-center text-blue-800">
+                                <form  method="POST" action="{{ route('approval1.store') }}">
+                                @csrf
 
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-blue-600"></span> Done
-                        </td>
+                                    <input type="hidden" name="appointment_id" value="{{ $approvedmed->appid }}">
+                                    <input type="hidden" name="usertype" value="{{ $approvedmed->type }}">
+                                    <input type="hidden" name="date" value="{{ $approvedmed->date }}">
+                                    <input type="hidden" name="time" value="{{ $approvedmed->time }}">
+                                    <input type="hidden" name="reqtype" value="{{ $approvedmed->patient_concern }}">
+                                    <input type="hidden" name="remarks" value="{{ $approvedmed->remarks }}">
 
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->appid }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->type }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->date }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->time }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->patient_concern }}</td>
+                                    <td class="border-2 border-yellow-700">{{ $approvedmed->remarks }}</td>
+                                    <td class="border-2 border-yellow-700">
+                                        <span class="inline-block h-3 w-3 rounded-full
+                                            @if($approvedmed->status === 'Approved') bg-green-400
+                                            @elseif($approvedmed->status === 'Not Approved') bg-red-400
+                                            @elseif($approvedmed->status === 'Reschedule') bg-blue-400
+                                            @elseif($approvedmed->status === 'Follow Up') bg-pink-400
+                                            @else bg-yellow-400
+                                            @endif">
+                                        </span>
+                                        {{ ucfirst($approvedmed->status) }}
+                                    </td>
 
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-yellow-300"></span> On-Going
-                        </td>
+                                    <td>
+                                        <button  type="submit" name="action" value="resolved" class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
+                                            <i class='bx bx-check-circle'></i>
+                                        </button>
+                                    </td>
+                                </form>
+                            </tr>
 
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-yellow-300"></span> On-Going
-                        </td>
-
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr class="text-center text-blue-800">
-                        <td class="border-2 border-yellow-700">123456</td>
-                        <td class="border-2 border-yellow-700">Student</td>
-                        <td class="border-2 border-yellow-700">02/23/2024</td>
-                        <td class="border-2 border-yellow-700">Complaint</td>
-                        <td class="border-2 border-yellow-700">1:00 PM</td>
-                        <td class="border-2 border-yellow-700">Remarks</td>
-                        <td class="border-2 border-yellow-700">
-                            <span class="inline-block h-3 w-3 rounded-full bg-yellow-300"></span> On-Going
-                        </td>
-
-                        <td>
-                            <button class="text-lg text-blue-800 p-2 hover:border hover:border-gray-200 rounded-lg">
-                                <i class='bx bx-trash'></i>
-                            </button>
-                        </td>
-                    </tr>
+                        @endif
+                    @endforeach
+                    
+                    {{-- If empty --}}
+                    @if(!$hasAppointments)
+                        <tr>
+                            <td colspan="8">
+                                <div class="w-full text-center py-28 text-blue-950 font-bold">
+                                    <h4 class="text-4xl">NO DENTAL APPOINTMENTS</h4>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
-
-            <div class="w-full text-center py-28 text-blue-950 font-bold">
-                {{-- If empty --}}
-                <h4 class="text-4xl">NO DENTAL <br> APPOINTMENT</h4>
-            </div>
         </div>
     </div>
 </div>

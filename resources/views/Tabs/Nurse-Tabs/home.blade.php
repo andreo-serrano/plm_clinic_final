@@ -121,7 +121,7 @@
                         <h1 class="text-xl font-semibold text-blue-800">TO DO LIST</h1>
                     </div>
                     
-                    <button data-dropdown-toggle="dropdown" class="flex flex-row gap-2 items-center">
+                    {{--<button data-dropdown-toggle="dropdown" class="flex flex-row gap-2 items-center">
                         <span>Today</span>
                         <img width="16" height="16" src="https://img.icons8.com/ios-glyphs/16/000000/expand-arrow--v1.png" alt="expand-arrow--v1"/>
                     </button>
@@ -141,7 +141,7 @@
                             <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Monthly</a>
                           </li>
                         </ul>
-                    </div>
+                    </div>--}}
                 </div>
 
                 <div class="overflow-auto space-y-2 h-72">
