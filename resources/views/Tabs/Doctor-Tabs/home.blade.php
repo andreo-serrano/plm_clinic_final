@@ -2,7 +2,7 @@
     <div class="w-full h-fit bg-white rounded-xl p-10">
         <h1 class="text-yellow-600 font-bold text-3xl">VIEW TASK</h1>
         
-        <div class="w-full h-full grid grid-cols-2 grid-rows-2 gap-3 mt-3">
+        <div class="w-full h-full grid grid-cols-1 grid-rows-2 gap-3 mt-3">
             <div class="col-span-1 row-span-2 border-2 border-blue-800 rounded-lg p-4">
                 <div class="flex mb-2 flex-row items-center justify-between">
                     <div class="flex flex-row">
@@ -97,9 +97,9 @@
                 </div>
             </div>
 
-            <div class="col-span-1 row-span-1 border-2 border-blue-800 rounded-lg p-4">
+            {{--<div class="col-span-1 row-span-1 border-2 border-blue-800 rounded-lg p-4">
                 <ul class="list-disc px-5">
-                    <li class="text-blue-800 text-xl font-semibold">DAILY READ</li>
+                    <li class="text-blue-800 text-xl font-semibold">CALENDAR</li>
                 </ul>
 
                 <p class="mb-2">Equitable medical education with efforts toward real change</p>
@@ -115,7 +115,7 @@
                 <p class="mb-2">Equitable medical education with efforts toward real change</p>
 
                 <img src="{{asset('assets/imgs/rectangle.png')}}" alt="">
-            </div>
+            </div>--}}
         </div>
     </div>
 </div>

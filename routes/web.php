@@ -8,6 +8,8 @@ use App\Http\Controllers\Approval;
 use App\Http\Controllers\Approval1;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\LabResultController;
+use App\Http\Controllers\Search;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -149,6 +151,11 @@ Route::resource('announcements', AnnouncementController::class);
 
 //Appointment Request Storing
 Route::resource('appointmentreqs', AppointmentRequest::class);
+//Route::post('/appointmentreqs-update', [AppointmentRequest::class, 'update'])->name('appointmentreqs.update');
+//Route::put('/appointmentreqs/{appointment}', [AppointmentRequest::class, 'update'])->name('appointmentreqs.update');
+Route::post('/appointment-requests/update', [AppointmentRequest::class, 'update'])->name('appointment-requests.update');
+Route::post('/appointment-requests/updateRemarks', [AppointmentRequest::class, 'updateRemarks'])->name('appointment-requests.updateRemarks');
+
 
 //Schedule Notes Storing
 Route::get('/schedulenotes', [ScheduleNoteController::class, 'index'])->name('schedulenotes.index');
@@ -168,7 +175,16 @@ Route::get('/reports/monthly-patients', [ReportController::class, 'getMonthlyPat
 Route::get('/reports/patients-for-period', [ReportController::class, 'getPatientsForPeriod'])->name('reports.patients-for-period');
 
 //Search route
-Route::get('/search', [AppointmentController::class, 'search'])->name('search');
+//Route::get('/search', [AppointmentController::class, 'search'])->name('search');
+//Route::get('/search', [Search::class, 'search'])->name('search');
+//Route::post('/search-patient', [Search::class, 'search'])->name('search.patient');
+Route::post('/search-patient-records', [Search::class, 'searchPatientRecords'])->name('search.patient.records');
+Route::post('/fetch-medical-records', [Search::class, 'fetchRecords'])->name('fetch.medical.records');
+Route::post('/update-record', [Search::class, 'updateRecord'])->name('update.record');
 
+
+
+//File Upload 
+Route::post('/upload', [LabResultController::class, 'upload'])->name('upload');
 
 require __DIR__.'/auth.php';

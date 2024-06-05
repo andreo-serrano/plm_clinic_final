@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Approvalmodel1;
 use App\Models\Appointmentreq;
-
+use App\Models\Labresults;
 
 use Illuminate\Http\Request;
 
@@ -18,6 +18,7 @@ class Approval1 extends Controller
             'time' => 'required|string|max:255',
             'reqtype' => 'required|string|max:255',
             'remarks' => 'nullable|string',
+            'univnum' => 'nullable|string',
         ]);
 
         // Find the existing approval request by appid
@@ -63,7 +64,26 @@ class Approval1 extends Controller
             $updatereq->save();
         }
 
+        // Create a new entry in Labresults table
+        $this->createLabresultsEntry($validatedData);
+
         // Redirect back or wherever you need
         return redirect()->back()->with('success', 'Requested Successfully!');
+    }
+
+    private function createLabresultsEntry($validatedData)
+    {
+        // Ensure the necessary data is available and create a new Labresults entry
+        $newLabResultData = [
+            'appid' => $validatedData['appointment_id'],
+            'univnum' =>  $validatedData['univnum'],
+            'current_condition' => $validatedData['reqtype'],
+            'diagnosis' => 'N/A',
+            'treatment_plan' => 'N/A',
+            'remarks' => $validatedData['remarks'] ?? 'N\A',
+            'lab_results_file' => 'N/A',
+        ];
+
+        Labresults::create($newLabResultData);
     }
 }

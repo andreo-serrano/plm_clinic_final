@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AppointmentConfirmation;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Appointmentreq;
 
@@ -44,4 +46,54 @@ class AppointmentRequest extends Controller
         // Redirect back or wherever you need
         return redirect()->back()->with('success', 'Requested Successfully!');
     }
+
+    public function update(Request $request)
+    {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'appid' => 'required|string',
+            'date' => 'required|date',
+            'time' => 'required',
+        ]);
+
+        // Find the appointment request by ID
+        $updateappreq = Appointmentreq::find($validatedData['appid']);
+
+        // If the appointment request is found
+        if($updateappreq){
+            // Update the necessary fields
+            $updateappreq->date = $validatedData['date'];
+            $updateappreq->time = $validatedData['time'];
+            $updateappreq->remarks = 'pending'; // or any other value you want to update
+
+            // Save the changes
+            $updateappreq->save();
+        }
+
+        // Redirect back or wherever you need
+        return redirect()->back()->with('success', 'Updated Successfully!');
+    }
+    public function updateRemarks(Request $request)
+    {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'appid' => 'required|string',
+        ]);
+
+        // Find the appointment request by ID
+        $updateappreq = Appointmentreq::find($validatedData['appid']);
+
+        // If the appointment request is found
+        if($updateappreq){
+            // Update the necessary fields
+            $updateappreq->remarks = 'Cancelled'; // or any other value you want to update
+
+            // Save the changes
+            $updateappreq->save();
+        }
+
+        // Redirect back or wherever you need
+        return redirect()->back()->with('success', 'Updated Successfully!');
+    }
+
 }

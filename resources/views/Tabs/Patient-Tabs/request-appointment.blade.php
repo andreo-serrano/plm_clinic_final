@@ -112,7 +112,7 @@
 
 
                             // Display success message
-                            alert("Announcement submitted successfully!");
+                            alert("Request submitted successfully!");
                             return true; // Allow form submission
                         }
 
@@ -140,7 +140,6 @@
                         });
                     </script>
                     {{-- Enabling of reason for consultation field --}}
-
 
                 </div>
         </div>

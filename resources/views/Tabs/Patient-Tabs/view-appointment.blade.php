@@ -150,7 +150,7 @@
                                 <td class="border-2 border-yellow-700">{{ $appointment->request_type }}</td>
                                 <td class="border-2 border-yellow-700">{{ $appointment->reason }}</td>
                                 <td class="border-2 border-yellow-700">{{ $appointment->time }}</td>
-                                <td class="border-2 border-yellow-700">
+                                <td class="border-2 border-yellow-700" data-modal-target="cancel-modal" data-modal-toggle="cancel-modal">
                                     <span class="inline-block h-3 w-3 rounded-full
                                         @if($appointment->remarks === 'Approved') bg-green-400
                                         @elseif($appointment->remarks === 'Not Approved') bg-red-400
@@ -210,17 +210,43 @@
                             <td class="border-2 border-yellow-700">{{ $appointment->type }}</td>
                             <td class="border-2 border-yellow-700">{{ $appointment->date }}</td>
                             {{-- For Remarks --}}
-                            <td class="border-2 border-yellow-700">
-                                <span class="inline-block h-3 w-3 rounded-full
-                                    @if($appointment->remarks === 'Approved') bg-green-400
-                                    @elseif($appointment->remarks === 'Not Approved') bg-red-400
-                                    @elseif($appointment->remarks === 'Reschedule') bg-blue-400
-                                    @elseif($appointment->remarks === 'Follow Up') bg-pink-400
-                                    @else bg-yellow-400
-                                    @endif">
-                                </span>
-                                {{ ucfirst($appointment->remarks) }}
-                            </td>                 
+                            @if($appointment->remarks === 'Approved')
+                                <td class="border-2 border-yellow-700" data-modal-target="cancel-modal" data-modal-toggle="cancel-modal">
+                                    <span class="inline-block h-3 w-3 rounded-full
+                                        @if($appointment->remarks === 'Approved') bg-green-400
+                                        @elseif($appointment->remarks === 'Not Approved') bg-red-400
+                                        @elseif($appointment->remarks === 'Reschedule') bg-blue-400
+                                        @elseif($appointment->remarks === 'Follow Up') bg-pink-400
+                                        @else bg-yellow-400
+                                        @endif">
+                                    </span>
+                                    {{ ucfirst($appointment->remarks) }}
+                                </td>   
+                            @elseif($appointment->remarks === 'Reschedule') 
+                                <td class="border-2 border-yellow-700" data-modal-target="resched-confirmation-modal" data-modal-toggle="resched-confirmation-modal">
+                                    <span class="inline-block h-3 w-3 rounded-full
+                                        @if($appointment->remarks === 'Approved') bg-green-400
+                                        @elseif($appointment->remarks === 'Not Approved') bg-red-400
+                                        @elseif($appointment->remarks === 'Reschedule') bg-blue-400
+                                        @elseif($appointment->remarks === 'Follow Up') bg-pink-400
+                                        @else bg-yellow-400
+                                        @endif">
+                                    </span>
+                                    {{ ucfirst($appointment->remarks) }}
+                                </td> 
+                            @elseif($appointment->remarks === 'pending') 
+                                <td class="border-2 border-yellow-700" data-modal-target="cancel-modal" data-modal-toggle="cancel-modal">
+                                    <span class="inline-block h-3 w-3 rounded-full
+                                        @if($appointment->remarks === 'Approved') bg-green-400
+                                        @elseif($appointment->remarks === 'Not Approved') bg-red-400
+                                        @elseif($appointment->remarks === 'Reschedule') bg-blue-400
+                                        @elseif($appointment->remarks === 'Follow Up') bg-pink-400
+                                        @else bg-yellow-400
+                                        @endif">
+                                    </span>
+                                    {{ ucfirst($appointment->remarks) }}
+                                </td> 
+                            @endif             
                         </tr>
                     @endforeach
                 </tbody>
@@ -258,43 +284,54 @@
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow border-2 border-yellow-700">
             <!-- Modal body -->
-            <div class="p-3 space-y-4 text-center">
-                <h2 class="text-yellow-700 font-semibold text-xl">RESCHEDULE APPOINTMENT</h2>
+            <form class="p-3 space-y-4 text-center" id="resched" action="{{ route('appointment-requests.update') }}" method="POST">
+            @csrf
+                <div class="p-3 space-y-4 text-center">
+                    <h2 class="text-yellow-700 font-semibold text-xl">RESCHEDULE APPOINTMENT</h2>
 
-                <div class="flex flex-col gap-3">
-                    <div class="w-full text-start">
-                        <label class="text-yellow-700">Select Date:</label>
-                        <input type="date" class="border border-blue-800 rounded-xl w-full py-1">
-                    </div>
+                    <div class="flex flex-col gap-3">
+                        <div class="w-full text-start">
+                            <label class="text-yellow-700">Select Date:</label>
+                            <input type="date" name="date" id="date" class="border border-blue-800 rounded-xl w-full py-1">
+                        </div>
 
-                    <div class="w-full text-start">
-                        <label class="text-yellow-700">Select Time:</label>
-                        <input type="time" class="border border-blue-800 rounded-xl w-full py-1">
+                        <div class="w-full text-start">
+                            <label class="text-yellow-700">Select Time:</label>
+                            <input type="time" name="time" id="time" class="border border-blue-800 rounded-xl w-full py-1">
+                        </div>
+
+                        <div class="w-full text-start">
+                            <label class="text-yellow-700">Enter Appointment ID:</label>
+                            <input type="text" name="appid" id="appid" placeholder="Enter Appointment ID" class="border border-blue-800 rounded-xl w-full py-1">
+                        </div>
                     </div>
+                    
                 </div>
-                
-            </div>
-            <!-- Modal footer -->
-            <div class="flex items-center justify-center p-3 gap-3">
-                <input data-modal-hide="resched-modal" type="submit" value="SUBMIT" class="text-base px-5 py-1 bg-yellow-700 text-white rounded-lg hover:bg-yellow-900">
-            </div>
+                <!-- Modal footer -->
+                <div class="flex items-center justify-center p-3 gap-3">
+                    <input data-modal-hide="resched-modal" name="submit" type="submit" value="SUBMIT" class="text-base px-5 py-1 bg-yellow-700 text-white rounded-lg hover:bg-yellow-900">
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<div id="delete-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="cancel-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full flex justify-center items-center">
-        <!-- Modal content -->
-        <div class="relative bg-white rounded-lg shadow border-2 border-yellow-700 w-52">
-            <!-- Modal body -->
-            <div class="p-3 space-y-4 text-center">
-                <span class="text-yellow-700 font-semibold">Delete the Appointment Request?</span>
-            </div>
-            <!-- Modal footer -->
-            <div class="flex items-center justify-center p-3 gap-3">
-                <button data-modal-hide="delete-modal" type="button" class="text-white bg-yellow-700 px-3 py-1 rounded-lg hover:bg-yellow-900">Yes</button>
-                <button data-modal-hide="delete-modal" type="button" class="border border-yellow-700 bg-white text-yellow-700 px-3 py-1 rounded-lg hover:border-2">No</button>
-            </div>
+        <div class="relative bg-white rounded-lg shadow border-2 border-yellow-700 w-200 p-4">
+            <h2 class="text-yellow-700 font-semibold text-xl mb-2">RESCHEDULE APPOINTMENT</h2>
+
+            <form class="space-y-2 text-center" id="resched" action="{{ route('appointment-requests.updateRemarks') }}" method="POST">
+                @csrf
+                <div class="w-full">
+                    <label class="text-yellow-700 block mb-1 text-left" for="appid">Enter Appointment ID to Cancel:</label>
+                    <input type="text" name="appid" id="appid" placeholder="Appointment ID" class="border border-blue-800 rounded-md w-full py-1 px-2">
+                </div>
+                <div class="flex justify-center gap-2 mt-3">
+                    <button data-modal-hide="cancel-modal" type="submit" name="yes" id="yes" class="text-white bg-yellow-700 px-3 py-1 rounded-md hover:bg-yellow-900">Yes</button>
+                    <button data-modal-hide="cancel-modal" name="no" type="button" class="border border-yellow-700 bg-white text-yellow-700 px-3 py-1 rounded-md hover:border-2">No</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -87,6 +87,7 @@
                                         <input type="hidden" name="usertype" value="{{ $userTypeLookup[$appointment->univnum] ?? 'Unknown' }}">
                                         <input type="hidden" name="date" value="{{ $appointment->date }}">
                                         <input type="hidden" name="time" value="{{ $appointment->time }}">
+                                        <input type="hidden" name="univnum" value="{{ $appointment->univnum }}">
 
                                         @if($appointment->request_type === 'Other')
                                             <input type="hidden" name="reqtype" value="{{ $appointment->reason }}">
@@ -216,6 +217,7 @@
                                         <input type="hidden" name="date" value="{{ $appointment->date }}">
                                         <input type="hidden" name="time" value="{{ $appointment->time }}">
                                         <input type="hidden" name="reqtype" value="{{ $appointment->reason }}">
+                                        <input type="hidden" name="univnum" value="{{ $appointment->univnum }}">
                                     
                                     
                                                 <td id="id" name="id" class="border-2 border-yellow-700">{{ $appointment->id }}</td>
